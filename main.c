@@ -1,74 +1,89 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "mymkfs.h"
 
 
 int main (int argc, char *argv[])
 {
+
+// ##############################-TEST / MYMKFS / MOUNT-##############################
+
   mymkfs(10000);
+  printf("we create the file system with mymkfs \n");
   sync_fs("test");
+
   mymount("fs_data", NULL, 0, NULL);
-//   int f0 =  allocate_file("uno");
-//   int f1 = allocate_file("dos");
-//   sync_fs();
-//
-//   myopen("/uno", 0);
-// //
-//   mywrite(f0, "abcdefgh12345678",17);
-// // // seek , read , open test 
-//   char buff[6];
-//   myread(f0, buff, 6);
-//   printf("we read :-%s-\n",buff); sync_fs();
-// //   mylseek(f0,5,SEEK_SET);
-//   myread(f0, buff, 6);
-// //   printf("we read :-%s-\n",buff); sync_fs();
-//   myclose(f0);
-//
-// // find file or folder test  
-//  // int ans1 =find_fileodir("/check", FILE_T , 0);
-//  // // sync_fs();
-//  // int ans2 = find_fileodir("check", FILE_T, 0);
-//  // sync_fs();
-//  // myopen("check",0);
-//  // mywrite(ans1,"hello les tarlouzes", 20);
-//  // char buff2[20];
-//  // myread(ans2, buff2, 20);
-//  // printf("the content of file check is : %s\n",buff2);
-//  // printf("check file1  = %d , file 2 = %d\n",ans1,ans2);
-//  sync_fs();
-//  //
-myDIR* d1 = myopendir("/lol");
-// sync_fs();
-// sync_fs();
-myDIR* d2 = myopendir("/lol/tasse");
-myDIR* d3 = myopendir("/lol/chou");
-myDIR* d4 = myopendir("/lol/chou/tache");
-int f4 = myopen("lol/chou/tache/gros", O_CREATE);
-myDIR* d5 = myopendir("/lol/chou/tache/table");
-int f11 = myopen("lol/tasse/tigre", O_CREATE);
-int f12 = myopen("/lol/chou/tache/table/oiseau", O_CREATE);
-mydirent* dd = myreaddir(d4);
-printf("the dir name is : %s\n",dd->name);
+  printf("we mount the file fs_data as our system file \n");
 
-open_rec_dir(d1);
-myclosedir(d1);
-open_rec_dir(d1);
-mywrite(f12,"fesses",15);
-mywrite(f4,"gros chat bleu",15);
-char buff4[15];
-char buff5[7];
-myread(f4,buff4,15);
-myread(f12,buff5,7);
 
-printf("the content of /lol/chou/tache/table/oiseau is %s\n",buff5);
-printf("the content of /lol/chou/tache/gros is %s\n",buff4);
- // sync_fs();
-mywrite(f11, "test - test 2", 14);
-char buff3[14];
-myread(f11, buff3, 14);
-printf("the content of file lol/tasse/tigre is %s \n",buff3);
-printf("done with success\n");
+
+// ##############################-MYOPEN / MYREAD / MYCLOSE / MYWRITE-##############################
+ char file1[] = "myf1";
+ printf("we try to open the file %s that doesn't exist already in O_CREATE mode \n",file1);
+ int fd1 = myopen(file1, O_CREATE);
+ printf("we create and open the file with fd %d\n",fd1);
+ printf("we create another file with the name  but don't open it \n");
+ int fd2 = allocate_file("myf2");
+ printf("we create and open the file with fd %d\n",fd2);
+ printf("let's try to write the file we didn't open\n");
+ int res = mywrite(fd2, "just a test",12);
+ printf("the write function return %d then didn't work cause the file wasn't open\n",res);
+ printf("then let's write the file myf1 <it's just a text>\n");
+ mywrite(fd1, "it's just a text", 17);
+ printf("now we read it \n");
+ char bufff1[17];
+ myread(fd1, bufff1, 17);
+ printf("from the file with fd %d we read is : %s\n",fd1,bufff1);
 //
+
+// ##############################-MYOPENDIR / MYREADDIR-############################## 
+//
+printf("now we will create and open  a new directory with pathname : dd1 \n");
+myDIR* dd1 = myopendir("dd1");
+printf("the directory have the fd %d \n",dd1->inode_pos);
+
+printf("let's create a directory into this directory with pathname /dd1/dd12 \n");
+myDIR* dd12 = myopendir("/dd1/dd12");
+printf("the directory have the fd %d \n",dd12->inode_pos);
+
+printf("let's create a file at place /dd1/dd12/f3 \n");
+int fd3 = myopen("/dd1/dd12/f3",O_CREATE);
+printf("the file descriptor of the new file is %d\n",fd3);
+
+printf("let's write <abcdefgh12345678> in the file\n");
+mywrite(fd3, "abcdefgh12345678", 31);
+
+printf("now we read it \n");
+char bufff2[17];
+memset(bufff2, 0, 17);
+myread(fd3, bufff2, 17);
+printf("from the file with fd %d we read %s\n",fd3,bufff2);
+
+printf("now  we close the dir /dd1 and al lthe files in \n");
+myclosedir(dd1);
+
+printf("let's try to read the dd2 dir \n");
+myreaddir(dd12);
+
+printf("now we open the file f3 \n");
+myopen("f3", 0);
+
+printf("now let's try to lseek \n");
+mylseek(fd3, 5, SEEK_CUR); // we read from place 3
+printf("we lseek SEEK_SET with offset 5 \n");
+
+char* bufff3 = calloc(6, 1);
+myread(fd3, bufff3, 5);
+printf("we read 5 char after the lseek from the file with text <abcdefgh12345678>\n");
+printf("we read : %s\n",bufff3);
+
+char* bufff4 = calloc(6, 1);
+mylseek(fd3, 5, SEEK_END);
+printf("we lseek from the end with SEEK_END with offset 5\n");
+myread(fd3, bufff4, 5);
+printf("we read 5 char from the end -5 char  of the file with text <abcdefgh12345678>\n");
+printf("we read : %s\n",bufff4);
 
   return 0;
 }

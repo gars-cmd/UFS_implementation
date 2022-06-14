@@ -14,4 +14,4 @@ main: main.o mymkfs.o
 .PHONY: clean all
 
 clean:
-	rm -f *.o test  
+	rm -f *.o test fs_data 

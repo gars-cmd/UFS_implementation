@@ -127,7 +127,7 @@ int allocate_file(const char *name){
     printf("from allocate file :the name is too long size: %d \n",size_n);
     return -1;
   }else {
-    printf("from allocate_file : the size of the name is %d\n",size_n);
+    // printf("from allocate_file : the size of the name is %d\n",size_n);
   }
   // claim them 
   inodes[in].first_block = block;
@@ -230,7 +230,7 @@ int myclose(int myfd){
     printf("from my close: an error occur while closed\n");
     return -1;
   }
-  printf("from myclose : success\n");
+  // printf("from myclose : success\n");
   return 0;
 }
 
@@ -282,7 +282,7 @@ int close_to_openfiles(int fd){
   openfiles[fd].filenum = -1;
   openfiles[fd].inode_pos = -1;
   openfiles[fd].seek_pos = 0;
-  printf("from close lone openfile:  the file was closed\n");
+  // printf("from close lone openfile:  the file was closed\n");
   return 0;
 }
 
@@ -300,7 +300,7 @@ ssize_t mywrite(int myfd, const void *buf, size_t count){
   for (int i = 0; i < size_buff; i++) {
     write_bytes(myfd, i, str_buff[i]);
   }
-  printf("from mywrite : the data was successfully writed \n");
+  // printf("from mywrite : the data was successfully writed \n");
   return size_buff;//we return the size of data that was written 
 }
 
@@ -313,22 +313,22 @@ off_t mylseek(int myfd, off_t offset, int whence){
 
   switch (whence) {
     case 0: // case of SEEK_SET
-      printf("from mylseek : we moove the pointer to the %d char\n",offset);
+      // printf("from mylseek : we moove the pointer to the %d char\n",offset);
       openfiles[myfd].seek_pos = offset;
       break;
     case 1: // case of SEEK_CUR
-      printf("from mylseek we : moove the pointer to the curr pos of %d to %d char\n",openfiles[myfd].seek_pos , openfiles[myfd].seek_pos + offset);
+      // printf("from mylseek we : moove the pointer to the curr pos of %d to %d char\n",openfiles[myfd].seek_pos , openfiles[myfd].seek_pos + offset);
       openfiles[myfd].seek_pos += offset; 
       break;
     case 2:
-      printf("from mylseek we : moove the pointer to the end pos at %d to %d char\n",dbs[inodes->first_block].last_pos , dbs[inodes->first_block].last_pos - offset );
+      // printf("from mylseek we : moove the pointer to the end pos at %d to %d char\n",dbs[inodes->first_block].last_pos , dbs[inodes->first_block].last_pos - offset );
       openfiles[myfd].seek_pos = dbs[inodes->first_block].last_pos - offset;
-    default:
-      printf("from lseek :wrong parameter need to enter SEEK_SET , SEEK_CUR OR SEEK_END\n");
-      return -1;
+    // default:
+      // printf("from lseek :wrong parameter need to enter SEEK_SET , SEEK_CUR OR SEEK_END\n");
+      // return -1;
   }
   int seek_final = openfiles[myfd].seek_pos;
-  printf(" from lseek : end of seek operation with final seek_pos at %d \n",seek_final);
+  // printf(" from lseek : end of seek operation with final seek_pos at %d \n",seek_final);
   return seek_final;
 }
 
@@ -353,7 +353,7 @@ int find_fileodir(const char* pathname , int type, int flag){ // type = 1 for fo
   }
 
   if (nbr_dir == 1) {
-    printf("from find_fileodir : we need to open a file without folder_path\n");
+    // printf("from find_fileodir : we need to open a file without folder_path\n");
     int it = 0;
     //if we have an only file but the path start with '/'
     if (pathname[0] == separ) {
@@ -368,29 +368,29 @@ int find_fileodir(const char* pathname , int type, int flag){ // type = 1 for fo
       if (strcmp(inodes[i].name,f_name)==0)  {
         //there is a match 
         if (inodes[i].ptr !=NULL) {
-          printf("from find file or folder : it's a folder (1)\n");
+          // printf("from find file or folder : it's a folder (1)\n");
           type_c = FOLDER ;
           if (type_c == type) {
             return i;
           }
           else {
-            printf("from find file or folder : find a match but wrong type , then  we create it  \n");
+            // printf("from find file or folder : find a match but wrong type , then  we create it  \n");
             if (flag != O_CREATE) {
               printf("the file doesn't exist and NON O_CREATE mode \n");
               return -1;
             }
             int ans = allocate_file(f_name);
 
-            printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
+            // printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
             return ans;
           }
         }
-        printf("from find file or folder : it's a file   \n");
+        // printf("from find file or folder : it's a file   \n");
         if (type_c == type) {
-          printf("from find file or folder : same type for file\n");
+          // printf("from find file or folder : same type for file\n");
           return i;
         }else {
-          printf("from file or folder : wrong type \n");
+          // printf("from file or folder : wrong type \n");
           if (flag != O_CREATE) {
             printf("the file doesn't exist and NON O_CREATE mode \n");
             return -1;
@@ -400,13 +400,13 @@ int find_fileodir(const char* pathname , int type, int flag){ // type = 1 for fo
           inodes[ans].ptr->inode_pos = ans;
           inodes[ans].ptr->size =0;
           inodes[ans].ptr->inodes_list = malloc(sizeof(int)*10);
-          printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
+          // printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
           return ans;
         }
       }
 
     }
-    printf("from find file or folder : we didn't get any match\n");
+    // printf("from find file or folder : we didn't get any match\n");
     if (flag != O_CREATE) {
       printf("the file doesn't exist and NON O_CREATE mode \n");
       return -1;
@@ -418,10 +418,10 @@ int find_fileodir(const char* pathname , int type, int flag){ // type = 1 for fo
       inodes[ans].ptr->inode_pos = ans;
       inodes[ans].ptr->inodes_list = malloc(sizeof(int)*10);
 
-      printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
+      // printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
       return ans;
     }else {
-      printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
+      // printf("from find file or folder :the folder %s was create with succes with fd %d \n",inodes[ans].name,ans);
       return ans;
     }
 
@@ -462,7 +462,7 @@ int find_fileodir(const char* pathname , int type, int flag){ // type = 1 for fo
     }
   }
 
-  printf("from find file or folder : number of dir is %d\n",nbr_dir);
+  // printf("from find file or folder : number of dir is %d\n",nbr_dir);
   // at this state we have an array with all the directory for our path 
 
   myDIR * curr_dir = NULL;
@@ -476,7 +476,7 @@ int find_fileodir(const char* pathname , int type, int flag){ // type = 1 for fo
     if (strcmp(inodes[i].name , arr_name[0]) == 0){
       // printf("there is a match \n");
       if (inodes[i].ptr != NULL) { // we find a match and the match is a folder 
-        printf("from find file or folder : there is a match with a folder that is %p\n",inodes[i].ptr);
+        // printf("from find file or folder : there is a match with a folder that is %p\n",inodes[i].ptr);
         curr_dir = inodes[i].ptr;
         break;
       }
@@ -510,7 +510,7 @@ int find_fileodir(const char* pathname , int type, int flag){ // type = 1 for fo
           // printf("compare between -%s- and -%s- \n",inodes[place].name,arr_name[j]);
           //check if it's a folder 
           if (inodes[place].ptr != NULL) {
-            printf("from find a file or a folder : the next path is also a folder\n");
+            // printf("from find a file or a folder : the next path is also a folder\n");
             curr_dir = inodes[place].ptr;
             break;
           }
@@ -568,10 +568,10 @@ myDIR * myopendir(const char *name){
   }
   int res = open_rec_dir(inodes[ans].ptr);
   if (res == -1) {
-    printf("from open_dir : the folder is empty there is no need to open it\n");
+    // printf("from open_dir : the folder is empty there is no need to open it\n");
     return inodes[ans].ptr;
   }else {
-    printf("from my open dir : all the files were successfully opened \n");
+    // printf("from my open dir : all the files were successfully opened \n");
     return inodes[ans].ptr;
   }
 }
@@ -625,6 +625,7 @@ int myclosedir(myDIR* dirp){
       openfiles[curr_fd].seek_pos =0;
       openfiles[curr_fd].filenum =-1;
       openfiles[curr_fd].inode_pos = -1;
+      printf("the folder %s was closed\n",inodes[curr_fd].name);
     }
     else {
       openfiles[curr_fd].inode_pos = -1;
