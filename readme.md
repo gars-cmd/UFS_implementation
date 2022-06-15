@@ -1,6 +1,6 @@
 ## Matala-7
 ---
-For this seventh assignment we need 5o implement the unix file system .
+For this seventh assignment we need to implement the unix file system .
 
 ### How to install
 ---
